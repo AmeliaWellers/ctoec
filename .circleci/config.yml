@@ -16,11 +16,6 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "composer.json" }}
-            - v1-dependencies-
-
       - run:
           name: Update dependencies
           command: |
@@ -62,15 +57,10 @@ jobs:
           name: Installing WP themes and plugins via Composer
           command: sudo composer self-update && composer install -n --prefer-dist
 
-      - save_cache:
-          paths:
-            - ./vendor
-          key: v1-dependencies-{{ checksum "composer.json" }}
-
       - persist_to_workspace:
           root: wordpress
           paths:
-            - wp-content/themes/${THEME_NAME}
+            - wp-content/themes/${THEME_NAME}/*
 
   deploy-staging:
     docker:
