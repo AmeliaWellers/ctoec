@@ -58,9 +58,9 @@ jobs:
           command: sudo composer self-update && composer install -n --prefer-dist
 
       - persist_to_workspace:
-          root: wordpress
+          root: .
           paths:
-            - wp-content/themes/${THEME_NAME}/*
+            - wordpress/wp-content/themes/${THEME_NAME}/*
 
   deploy-staging:
     docker:
