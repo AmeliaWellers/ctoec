@@ -60,7 +60,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - wordpress/wp-content/themes/${THEME_NAME}/*
+            - wordpress/wp-content/themes/ctoec/*
 
   deploy-staging:
     docker:
