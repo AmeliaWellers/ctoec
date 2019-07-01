@@ -85,31 +85,21 @@ jobs:
           key: v1-dependencies-{{ checksum "composer.json" }}
 
       - persist_to_workspace:
-          root: .
+          root: wordpress
           paths:
-            - wordpress/*
+            - wp-content/themes/${THEME_NAME}
 
   deploy-staging:
     docker:
       - image: circleci/php:7.3
     steps:
       - attach_workspace:
-          at: .
+          at: wordpress
       - run:
           name: Update dependencies
           command: |
             sudo apt-get update
             sudo apt-get install -y lftp
-      - run:
-          name: Download a fresh dev theme copy
-          command: |
-            rm -Rf wordpress/wp-content/themes/ctoec
-            git clone -b dev --single-branch https://github.com/ctoec/benjamin.git wordpress/wp-content/themes/ctoec
-            rm -rf wordpress/wp-content/themes/ctoec/.git
-      - run:
-          name: Publish to Staging
-          command: |
-            lftp sftp://${STAGING_SFTP_USERNAME}:${STAGING_SFTP_PASSWORD}@${STAGING_SFTP_HOSTNAME} -e "set ssl: verify-certificate no; set sftp:auto-confirm yes; mirror --exclude _dev/ -v -R ./wordpress/wp-content/themes/${THEME_NAME} ${STAGING_SITE_PATH}/wp-content/themes/${THEME_NAME}; quit"
 
   check-accessibility-lighthouse:
     docker:
@@ -190,15 +180,3 @@ workflows:
           requires:
             - build
             - validate-compliance
-      - run-visual-tests:
-          requires:
-            - deploy-staging
-      -  check-accessibility-lighthouse:
-           requires:
-            - deploy-staging     
-      - deploy-production:
-          requires:
-            - run-visual-tests
-          filters:
-            branches:
-              only: prod
